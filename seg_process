@@ -1,0 +1,7 @@
+#!/bin/bash
+BASEDIR="$(dirname "$0")"
+
+. "$BASEDIR/page-segmentation_venv//bin/activate"
+PATH="$BASEDIR:$PATH"
+
+python3 $BASEDIR/scripts/seg_process.py "$@"

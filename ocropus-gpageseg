@@ -1,0 +1,5 @@
+#!/bin/bash
+BASEDIR="$(dirname "$0")"
+
+. "$BASEDIR/mptv_venv/bin/activate"
+"${0##*/}" "$@"
