@@ -2,21 +2,32 @@
 
 ## Requirements
 
-- `virtualenv2` and `virtualenv3`
+- For GPU-Support: [CUDA](https://developer.nvidia.com/cuda-downloads) and [CUDNN](https://developer.nvidia.com/cudnn)
+- other requirements are installed via Makefile / pip, see `requirements.txt`
+  in repository root and in `page-segmentation` submodule.
 
 ## Setup
 
-After checking out the repository, run `setup.sh`. This will create the required
-virtualenvs and install dependencies.
+```bash
+make dep
+# or
+make dep-gpu
+```
+
+then
+
+```sh
+make install
+```
 
 ## Running
 
-The main script is `seg_process`. It takes two parameters: a `--model` for the
+The main script is `ocrd-pc-seg-process`. It takes two parameters: a `--model` for the
 pixel classifier and an `--image`, which must be a binarized image. For example
 with the included model:
 
 ```
-./seg_process --pc_model model/narren_dta02_eval_normaldh_maskfix_03 \
+ocrd-pc-seg-process --pc_model model/narren_dta02_eval_normaldh_maskfix_03 \
     --image abel_leibmedicus_1699_0007.bin.png
 ```
 

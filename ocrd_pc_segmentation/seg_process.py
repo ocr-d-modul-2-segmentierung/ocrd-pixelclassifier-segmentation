@@ -52,10 +52,10 @@ def main():
 	# buchner_theoria02_1683_0146/segmentation	(Segmentation files)
 
 	# Fetch character height
-	exit = os.system("page-segmentation compute-image-normalizations --input_dir " + process_dir
+	exit = os.system("ocrd-compute-normalizations --input_dir " + process_dir
 		+ " --output_dir " + process_dir)
 	if exit != 0:
-		print("Error: compute-image-normalizations exited with an error", file=sys.stderr)
+		print("Error: ocrd-compute-normalizations exited with an error", file=sys.stderr)
 		raise SystemExit()
 
 	char_height = get_char_height(process_dir)
@@ -64,10 +64,10 @@ def main():
 		raise SystemExit()
 
 	# Execute Pixel Classifier and get text/image prediction
-	exit = os.system("page-segmentation predict --image " + args.image
+	exit = os.system("ocrd-pixel-classifier --image " + args.image
 		+ " --binary " + args.image + " --load " + args.pc_model + " --char_height " + str(char_height) + " --output " + process_dir)
 	if exit != 0:
-		print("Error: predict.py exited with an error", file=sys.stderr)
+		print("Error: ocrd-pixel-classifier exited with an error", file=sys.stderr)
 		raise SystemExit()
 
 	# Create segmentation directory
@@ -75,19 +75,17 @@ def main():
 	if not os.path.exists(segmentation_dir):
 		os.mkdir(segmentation_dir)
 
-	segscript = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-			"pc_segmentation.py")
 	# Determine text/image regions based on Pixel Classifier prediction
-	exit = os.system("python3 " + segscript + " --inverted " + os.path.join(process_dir, "inverted", image_name) +
+	exit = os.system("ocrd-pc-seg-single --inverted " + os.path.join(process_dir, "inverted", image_name) +
 		" --char_height " + str(char_height) + " --binary " + args.image + " --output_dir " + segmentation_dir)
 	if exit != 0:
-		print("Error: pc_segmentation.py exited with an error", file=sys.stderr)
+		print("Error: ocrd-pc-seg-single exited with an error", file=sys.stderr)
 		raise SystemExit()
 
 	# Create line images based on text regions
 	os.chdir(segmentation_dir)
 	for segment_file in glob(image_basename + "__*__paragraph" + image_ext):
-		os.system("ocropus-gpageseg -n " + segment_file)
+		os.system("ocropus-gpageseg-with-coords -n " + segment_file)
 
 	# Get line coordinates for all regions
 	region_line_coords = get_region_line_coordinates(glob(os.path.join(".", "*", "")))
@@ -131,7 +129,7 @@ def calculate_line_coordinates(region_line_coords, region_coords):
 	return (str(image_line_x_start) + ',' + str(image_line_y_start) + " " +
 			str(image_line_x_end)   + ',' + str(image_line_y_start) + " " +
 			str(image_line_x_end)   + ',' + str(image_line_y_end) + " " +
-			str(image_line_x_start) + ',' + str(image_line_y_end) + " ")
+			str(image_line_x_start) + ',' + str(image_line_y_end))
 
 def get_region_line_coordinates(region_dirs):
 	region_line_coords = {}

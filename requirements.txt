@@ -1,0 +1,2 @@
+ocrd>=1.0.0a4
+ocrd-fork-ocropy>=1.4.0a3

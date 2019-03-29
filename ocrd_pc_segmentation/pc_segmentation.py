@@ -257,10 +257,12 @@ def get_xy_cut(image, height, width, px_threshold_line, px_threshold_column, spl
 
 
 def get_xml_point_string(segment, coord_factor):
-	return (str(int(segment["x_start"] * coord_factor)) + "," + str(int(segment["y_start"] * coord_factor)) + " " +
-			str(int(segment["x_end"]   * coord_factor)) + "," + str(int(segment["y_start"] * coord_factor)) + " " +
-			str(int(segment["x_end"]   * coord_factor)) + "," + str(int(segment["y_end"]   * coord_factor)) + " " +
-			str(int(segment["x_start"] * coord_factor)) + "," + str(int(segment["y_end"]   * coord_factor)))
+	return " ".join(["{:.0f},{:.0f}"] * 4).format(*[ x * coord_factor for x in [
+			segment["x_start"], segment["y_start"],
+			segment["x_end"],   segment["y_start"],
+			segment["x_end"],   segment["y_end"],
+			segment["x_start"], segment["y_end"],
+		]])
 
 def create_page_xml(image_path, resize_height, segments_text, segments_image, outfile):
 	image  = cv2.imread(image_path)

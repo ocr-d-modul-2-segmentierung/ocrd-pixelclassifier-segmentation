@@ -7,7 +7,11 @@ git submodule update
 
 virtualenv3 page-segmentation_venv
 . page-segmentation_venv/bin/activate
-pip install ./page-segmentation
+if [ "$1" = "--gpu" ]; then
+	pip install "./page-segmentation[tf_gpu]"
+else
+	pip install "./page-segmentation[tf_cpu]"
+fi
 deactivate
 
 virtualenv2 mptv_venv

@@ -1,0 +1,1 @@
+- migrate to upstream ocropus-gpageseg when changes are included
