@@ -1,0 +1,47 @@
+{
+  "git_url": "https://github.com/ocr-d-modul-2-segmentierung/segmentation-runner",
+  "version": "0.1.0",
+  "tools": {
+    "ocrd-pixelclassifier-segmentation": {
+      "executable": "ocrd-pc-segmentation",
+      "categories": ["Layout analysis"],
+      "description": "Segment page into regions with tesseract",
+      "input_file_grp": [
+        "OCR-D-IMG-BIN"
+      ],
+      "output_file_grp": [
+        "OCR-D-SEG-BLOCK"
+      ],
+      "steps": ["layout/segmentation/region"],
+      "parameters": {
+        "overwrite_regions": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove existing layout and text annotation below the Page level"
+        },
+        "char_height": {
+          "type": "integer",
+          "description": "height of character n in pixels",
+          "default": "8"
+        },
+        "model":  {
+          "type": "string",
+          "description": "trained model for pixel classifier",
+          "required": true
+        },
+        "gpu_allow_growth": {
+          "type": "boolean",
+          "default": false,
+          "description": "required for GPU use with some graphic cards (set to true, if you get CUDNN_INTERNAL_ERROR)"
+
+        },
+        "resize_height": {
+          "type": "integer",
+          "default": 300,
+          "description": "scale down pixelclassifier output to this height (performance/quality tradeoff)"
+        }
+
+      }
+    }
+  }
+}

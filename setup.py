@@ -30,8 +30,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'ocrd-pc-seg-single=ocrd_pc_segmentation.pc_segmentation:main',
-            'ocrd-pc-seg-process=ocrd_pc_segmentation.seg_process:main',
+            'ocrd-pc-segmentation=ocrd_pc_segmentation.cli:ocrd_pc_segmentation',
         ]
     },
     scripts=['ocrd_pc_segmentation/ocropus-gpageseg-with-coords'],
