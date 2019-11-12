@@ -11,8 +11,7 @@ a binary image. This result is then segmented per class using XY cuts.
 - For GPU-Support: [CUDA](https://developer.nvidia.com/cuda-downloads) and
   [CUDNN](https://developer.nvidia.com/cudnn)
 - other requirements are installed via Makefile / pip, see `requirements.txt`
-  in repository root and in `page-segmentation` submodule.
-- *TODO: publish all dependencies for pip*
+  in repository root.
 
 ## Installation
 

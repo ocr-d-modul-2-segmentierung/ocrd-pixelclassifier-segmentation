@@ -1,3 +1,3 @@
 ocrd>=2.0.0a1
 click
-page-segmentation
+ocr4all-pixel-classifier

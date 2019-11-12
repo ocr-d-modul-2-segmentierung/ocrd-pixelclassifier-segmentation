@@ -24,7 +24,7 @@ help:
 # Install python deps via pip
 deps:
 	$(PIP) install -r requirements.txt
-	$(PIP) install ./page-segmentation[$(TENSORFLOW_VARIANT)]
+	$(PIP) install ocr4all-pixel-classifier[$(TENSORFLOW_VARIANT)]
 
 # Install
 install: deps
