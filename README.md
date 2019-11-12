@@ -1,29 +1,44 @@
 # page-segmentation module for OCRd
 
+## Introduction
+
+This module implements a page segmentation algorithm based on a Fully
+Convolutional Network (FCN). The FCN creates a classification for each pixel in
+a binary image. This result is then segmented per class using XY cuts.
+
 ## Requirements
 
-- For GPU-Support: [CUDA](https://developer.nvidia.com/cuda-downloads) and [CUDNN](https://developer.nvidia.com/cudnn)
+- For GPU-Support: [CUDA](https://developer.nvidia.com/cuda-downloads) and
+  [CUDNN](https://developer.nvidia.com/cudnn)
 - other requirements are installed via Makefile / pip, see `requirements.txt`
   in repository root and in `page-segmentation` submodule.
 - *TODO: publish all dependencies for pip*
 
-## Setup
+## Installation
+
+If you want to use GPU support, set the environment variable `TENSORFLOW_GPU`,
+otherwise leave it unset. Then:
 
 ```bash
 make dep
-# or
-make dep-gpu
 ```
 
-then
+to install dependencies and
 
 ```sh
 make install
 ```
 
-## Running
+to install the package.
+
+Both are python packages installed via pip, so you may want to activate
+a virtalenv before installing.
+
+## Usage
 
 `ocrd-pc-segmentation` follows the [ocrd CLI](https://ocr-d.github.io/cli).
+
+It expects a binary page image and produces region entries in the PageXML file.
 
 ## Configuration
 
@@ -36,3 +51,7 @@ The following parameters are recognized in the JSON parameter file:
   (set to true, if you get CUDNN_INTERNAL_ERROR)
 - `resize_height`: scale down pixelclassifier output to this height
   (performance / quality tradeoff, defaults to 300)
+
+## Training
+
+To train models for the pixel classifier, see [its README](page-segmentation/README.md)
