@@ -54,4 +54,4 @@ The following parameters are recognized in the JSON parameter file:
 
 ## Training
 
-To train models for the pixel classifier, see [its README](page-segmentation/README.md)
+To train models for the pixel classifier, see [its README](https://github.com/ocr-d-modul-2-segmentierung/page-segmentation/blob/master/README.md)
