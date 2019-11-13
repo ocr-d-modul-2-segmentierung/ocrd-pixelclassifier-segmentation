@@ -120,9 +120,10 @@ class PixelClassifierSegmentation(Processor):
         #       Same for points below
         #       page_image[page_xywh["x"]:page_xywh["w"], page_xywh["y"]:page_xywh["h"]]
 
-        from pagesegmentation.lib.pc_segmentation import find_segments
-        from pagesegmentation.scripts.find_segments import predict_masks,DEFAULT_IMAGE_MAP, DEFAULT_REVERSE_IMAGE_MAP
-        from pagesegmentation.lib.pc_segmentation import Segment
+        from ocr4all_pixel_classifier.lib.pc_segmentation import find_segments
+        from ocr4all_pixel_classifier.scripts.find_segments import predict_masks, \
+            DEFAULT_IMAGE_MAP, DEFAULT_REVERSE_IMAGE_MAP
+        from ocr4all_pixel_classifier.lib.pc_segmentation import Segment
 
         image_map = DEFAULT_IMAGE_MAP
         rev_image_map = DEFAULT_REVERSE_IMAGE_MAP

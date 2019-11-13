@@ -1,6 +1,0 @@
-[submodule "page-segmentation"]
-	path = page-segmentation
-	url = https://github.com/ocr-d-modul-2-segmentierung/page-segmentation.git
-[submodule "mptv"]
-	path = mptv
-	url = https://github.com/ocr-d-modul-2-segmentierung/mptv.git
