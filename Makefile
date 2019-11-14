@@ -2,6 +2,8 @@ SHELL = /bin/bash
 PYTHON = python
 PIP = pip
 
+DOCKER_TAG = 'ls6uniwue/ocrd_pixelclassifier_segmentation'
+
 ifndef TENSORFLOW_GPU
 	TENSORFLOW_VARIANT = tf_cpu
 else
@@ -29,6 +31,10 @@ deps:
 # Install
 install: deps
 	$(PIP) install .
+
+# Build docker image
+docker:
+	docker build -t $(DOCKER_TAG) .
 
 #TODO tests
 
