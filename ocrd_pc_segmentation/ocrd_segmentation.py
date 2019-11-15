@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import json
 import os.path
 
+import numpy as np
 from ocrd import Processor
 from ocrd_modelfactory import page_from_file
 from ocrd_models.ocrd_page import (
@@ -21,13 +22,9 @@ from ocrd_utils import (
 )
 from pkg_resources import resource_string
 
-from .common import (
-    image_from_page,
-)
-
 OCRD_TOOL = json.loads(resource_string(__name__, 'ocrd-tool.json').decode('utf8'))
 
-TOOL = 'ocrd-pc-segmentation'
+TOOL = 'ocrd-pixelclassifier-segmentation'
 LOG = getLogger('processor.PixelClassifierSegmentation')
 FALLBACK_IMAGE_GRP = 'OCR-D-SEG-BLOCK'
 
@@ -93,9 +90,9 @@ class PixelClassifierSegmentation(Processor):
             page.set_TableRegion([])
             page.set_UnknownRegion([])
 
-            page_image, page_xywh, _ = image_from_page(self.workspace, page, page_id)
+            page_image, page_xywh, _ = self.workspace.image_from_page(page, page_id)
 
-            self._process_page(page, page_image, page_xywh, char_height, model,
+            self._process_page(page, np.asarray(page_image), page_xywh, char_height, model,
                                gpu_allow_growth, resize_height)
 
             # Use input_file's basename for the new file -

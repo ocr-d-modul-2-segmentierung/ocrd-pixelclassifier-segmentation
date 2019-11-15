@@ -22,7 +22,7 @@
         "char_height": {
           "type": "integer",
           "description": "height of character n in pixels",
-          "default": "8"
+          "default": 8
         },
         "model":  {
           "type": "string",
