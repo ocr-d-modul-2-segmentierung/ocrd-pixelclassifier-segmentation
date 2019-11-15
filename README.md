@@ -51,6 +51,12 @@ The following parameters are recognized in the JSON parameter file:
 - `resize_height`: scale down pixelclassifier output to this height
   (performance / quality tradeoff, defaults to 300)
 
+## Testing
+
+There is a simple CLI test, that will run the tool on a single image from the assets repository.
+
+`make test-cli`
+
 ## Training
 
 To train models for the pixel classifier, see [its README](https://github.com/ocr-d-modul-2-segmentierung/page-segmentation/blob/master/README.md)
