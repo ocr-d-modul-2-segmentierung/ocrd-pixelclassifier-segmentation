@@ -28,6 +28,10 @@ deps:
 	$(PIP) install -r requirements.txt
 	$(PIP) install ocr4all-pixel-classifier[$(TENSORFLOW_VARIANT)]
 
+# Install testing python deps via pip
+deps-test:
+	$(PIP) install -r requirements_test.txt
+
 # Install
 install: deps
 	$(PIP) install .
@@ -39,3 +43,34 @@ docker:
 #TODO tests
 
 .PHONY: install deps
+
+
+test: test/assets
+
+# Test the command line tools
+test-cli: test/assets install
+	rm -rfv test-workspace
+	cp -rv test/assets/kant_aufklaerung_1784-binarized test-workspace
+	cp -rv dta2-model test-workspace/data
+	cd test-workspace/data && \
+		ocrd-pc-segmentation -l DEBUG -m mets.xml -I OCR-D-IMG-BIN -O OCR-D-SEG-BLOCK -p '{"model": "dta2-model/model.h5"}'
+
+#
+# Assets
+#
+
+# Clone OCR-D/assets to ./repo/assets
+repo/assets:
+	mkdir -p $(dir $@)
+	git clone https://github.com/OCR-D/assets "$@"
+
+
+# Setup test assets
+test/assets: repo/assets
+	mkdir -p $@
+	cp -r -t $@ repo/assets/data/*
+
+.PHONY: assets-clean
+# Remove symlinks in test/assets
+assets-clean:
+	rm -rf test/assets
