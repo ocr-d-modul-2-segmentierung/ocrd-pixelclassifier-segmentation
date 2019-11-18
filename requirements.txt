@@ -1,3 +1,4 @@
 ocrd>=2.0.0a1
 click
 ocr4all-pixel-classifier>=0.1.1
+numpy
