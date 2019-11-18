@@ -1,0 +1,3 @@
+include ocrd_pc_segmentation/dta2-model/model.h5
+include README.md
+

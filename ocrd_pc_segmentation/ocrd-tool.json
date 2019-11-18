@@ -27,7 +27,7 @@
         "model":  {
           "type": "string",
           "description": "trained model for pixel classifier",
-          "required": true
+          "default": "__DEFAULT__"
         },
         "gpu_allow_growth": {
           "type": "boolean",

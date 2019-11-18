@@ -51,9 +51,8 @@ test: test/assets
 test-cli: test/assets install
 	rm -rfv test-workspace
 	cp -rv test/assets/kant_aufklaerung_1784-binarized test-workspace
-	cp -rv ocrd_pc_segmentation/dta2-model test-workspace/data
 	cd test-workspace/data && \
-		ocrd-pc-segmentation -l DEBUG -m mets.xml -I OCR-D-IMG-BIN -O OCR-D-SEG-BLOCK -p '{"model": "dta2-model/model.h5"}'
+		ocrd-pc-segmentation -l DEBUG -m mets.xml -I OCR-D-IMG-BIN -O OCR-D-SEG-BLOCK
 
 #
 # Assets

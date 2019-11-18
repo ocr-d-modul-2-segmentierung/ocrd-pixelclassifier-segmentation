@@ -33,4 +33,5 @@ setup(
         ]
     },
     data_files=[('', ["requirements.txt"])],
+    include_package_data=True,
 )

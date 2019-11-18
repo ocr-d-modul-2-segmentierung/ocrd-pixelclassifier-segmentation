@@ -43,9 +43,14 @@ class PixelClassifierSegmentation(Processor):
         """
         overwrite_regions = self.parameter['overwrite_regions']
         char_height = self.parameter['char_height']
-        model = self.parameter['model']
         gpu_allow_growth = self.parameter['gpu_allow_growth']
         resize_height = self.parameter['resize_height']
+
+        model = self.parameter['model']
+        if model == '__DEFAULT__':
+            from ocrd_pc_segmentation import DEFAULT_SEGMENTATION_MODEL_PATH
+            model = DEFAULT_SEGMENTATION_MODEL_PATH
+
 
         try:
             page_grp, image_grp = self.output_file_grp.split(',')
