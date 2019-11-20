@@ -44,11 +44,11 @@ It expects a binary page image and produces region entries in the PageXML file.
 The following parameters are recognized in the JSON parameter file:
 
 - `overwrite_regions`: remove previously existing text regions
-- `char_height`: height of character "n" in pixels
+- `xheight`: height of character "x" in pixels used during training.
 - `model`: pixel-classifier model path
 - `gpu_allow_growth`: required for GPU use with some graphic cards
   (set to true, if you get CUDNN_INTERNAL_ERROR)
-- `resize_height`: scale down pixelclassifier output to this height
+- `resize_height`: scale down pixelclassifier output to this height before postprocessing. Independent of training / used model.
   (performance / quality tradeoff, defaults to 300)
 
 ## Testing

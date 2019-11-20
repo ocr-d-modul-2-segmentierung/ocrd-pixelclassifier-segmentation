@@ -42,7 +42,7 @@ class PixelClassifierSegmentation(Processor):
         Produces a PageXML file as output.
         """
         overwrite_regions = self.parameter['overwrite_regions']
-        char_height = self.parameter['char_height']
+        xheight = self.parameter['xheight']
         gpu_allow_growth = self.parameter['gpu_allow_growth']
         resize_height = self.parameter['resize_height']
 
@@ -97,7 +97,7 @@ class PixelClassifierSegmentation(Processor):
 
             page_image, page_xywh, _ = self.workspace.image_from_page(page, page_id)
 
-            self._process_page(page, np.asarray(page_image), page_xywh, char_height, model,
+            self._process_page(page, np.asarray(page_image), page_xywh, xheight, model,
                                gpu_allow_growth, resize_height)
 
             # Use input_file's basename for the new file -
@@ -115,7 +115,7 @@ class PixelClassifierSegmentation(Processor):
                 content=to_xml(pcgts))
 
     @staticmethod
-    def _process_page(page, page_image, page_xywh, char_height, model, gpu_allow_growth,
+    def _process_page(page, page_image, page_xywh, xheight, model, gpu_allow_growth,
                       resize_height):
 
         # TODO: does this still need to be cropped or do we not need page_xywh?
@@ -133,7 +133,7 @@ class PixelClassifierSegmentation(Processor):
         masks = predict_masks(None,
                               page_image,
                               image_map,
-                              char_height,
+                              xheight,
                               model,
                               post_processors=None,
                               gpu_allow_growth=gpu_allow_growth,
@@ -142,7 +142,7 @@ class PixelClassifierSegmentation(Processor):
         orig_height, orig_width = page_image.shape[0:2]
         mask_image = masks.inverted_overlay
 
-        segments_text, segments_image = find_segments(orig_height, mask_image, char_height,
+        segments_text, segments_image = find_segments(orig_height, mask_image, xheight,
                                                       resize_height, rev_image_map)
 
         def add_region(region: Segment, index: int, type: str):
