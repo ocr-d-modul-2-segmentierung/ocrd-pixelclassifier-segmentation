@@ -4,6 +4,7 @@ import json
 import os.path
 
 import numpy as np
+from ocr4all_pixel_classifier.lib.pc_segmentation import Segment
 from ocrd import Processor
 from ocrd_modelfactory import page_from_file
 from ocrd_models.ocrd_page import (
@@ -29,6 +30,11 @@ LOG = getLogger('processor.PixelClassifierSegmentation')
 FALLBACK_IMAGE_GRP = 'OCR-D-SEG-BLOCK'
 
 
+def polygon_from_segment(segment: Segment):
+    from ocrd_utils import polygon_from_bbox
+    return polygon_from_bbox(segment.x_start, segment.y_start, segment.x_end, segment.y_end)
+
+
 class PixelClassifierSegmentation(Processor):
 
     def __init__(self, *args, **kwargs):
@@ -51,15 +57,9 @@ class PixelClassifierSegmentation(Processor):
             from ocrd_pc_segmentation import DEFAULT_SEGMENTATION_MODEL_PATH
             model = DEFAULT_SEGMENTATION_MODEL_PATH
 
+        page_grp = self.output_file_grp
 
-        try:
-            page_grp, image_grp = self.output_file_grp.split(',')
-        except ValueError:
-            page_grp = self.output_file_grp
-            image_grp = FALLBACK_IMAGE_GRP
-            LOG.info("No output file group for images specified, falling back to '%s'", FALLBACK_IMAGE_GRP)
         for n, input_file in enumerate(self.input_files):
-            file_id = input_file.ID.replace(self.input_file_grp, image_grp)
             page_id = input_file.pageId or input_file.ID
             LOG.info("INPUT FILE %i / %s", n, page_id)
             pcgts = page_from_file(self.workspace.download_file(input_file))
@@ -68,9 +68,9 @@ class PixelClassifierSegmentation(Processor):
                 MetadataItemType(type_="processingStep",
                                  name=self.ocrd_tool['steps'][0],
                                  value=TOOL,
-                                 # FIXME: externalRef is invalid by pagecontent.xsd, but ocrd does not reflect this
-                                 # what we want here is `externalModel="ocrd-tool" externalId="parameters"`
-                                 Labels=[LabelsType(  # externalRef="parameters",
+                                 Labels=[LabelsType(
+                                     externalModel="ocrd-tool",
+                                     externalId="parameters",
                                      Label=[LabelType(type_=name,
                                                       value=self.parameter[name])
                                             for name in self.parameter.keys()])]))
@@ -95,9 +95,9 @@ class PixelClassifierSegmentation(Processor):
             page.set_TableRegion([])
             page.set_UnknownRegion([])
 
-            page_image, page_xywh, _ = self.workspace.image_from_page(page, page_id)
+            page_image, page_coords, _ = self.workspace.image_from_page(page, page_id)
 
-            self._process_page(page, np.asarray(page_image), page_xywh, xheight, model,
+            self._process_page(page, np.asarray(page_image), page_coords, xheight, model,
                                gpu_allow_growth, resize_height)
 
             # Use input_file's basename for the new file -
@@ -115,17 +115,12 @@ class PixelClassifierSegmentation(Processor):
                 content=to_xml(pcgts))
 
     @staticmethod
-    def _process_page(page, page_image, page_xywh, xheight, model, gpu_allow_growth,
+    def _process_page(page, page_image, page_coords, xheight, model, gpu_allow_growth,
                       resize_height):
-
-        # TODO: does this still need to be cropped or do we not need page_xywh?
-        #       Same for points below
-        #       page_image[page_xywh["x"]:page_xywh["w"], page_xywh["y"]:page_xywh["h"]]
 
         from ocr4all_pixel_classifier.lib.pc_segmentation import find_segments
         from ocr4all_pixel_classifier.scripts.find_segments import predict_masks, \
             DEFAULT_IMAGE_MAP, DEFAULT_REVERSE_IMAGE_MAP
-        from ocr4all_pixel_classifier.lib.pc_segmentation import Segment
 
         image_map = DEFAULT_IMAGE_MAP
         rev_image_map = DEFAULT_REVERSE_IMAGE_MAP
@@ -145,18 +140,17 @@ class PixelClassifierSegmentation(Processor):
         segments_text, segments_image = find_segments(orig_height, mask_image, xheight,
                                                       resize_height, rev_image_map)
 
-        def add_region(region: Segment, index: int, type: str):
+        def add_region(region: Segment, index: int, region_type: str):
+            from ocrd_utils import coordinates_for_segment, points_from_polygon
+            polygon = polygon_from_segment(region)
+            polygon = coordinates_for_segment(polygon, page_image, page_coords)
+            points = points_from_polygon(polygon)
+
             indexed_id = "region%04d" % index
-            points = str([
-                (region.x_start, region.y_start),
-                (region.x_start, region.y_end),
-                (region.x_end, region.y_start),
-                (region.x_end, region.y_end),
-            ])
             coords = CoordsType(points=points)
-            if type == "text":
+            if region_type == "text":
                 page.add_TextRegion(TextRegionType(id=indexed_id, Coords=coords))
-            elif type == "image":
+            elif region_type == "image":
                 page.add_ImageRegion(ImageRegionType(id=indexed_id, Coords=coords))
             else:
                 page.add_NoiseRegion(NoiseRegionType(id=indexed_id, Coords=coords))
