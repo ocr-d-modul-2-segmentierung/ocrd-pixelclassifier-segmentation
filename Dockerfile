@@ -15,6 +15,5 @@ COPY Makefile .
 RUN apt-get update && \
     apt-get -y install --no-install-recommends \
         build-essential \
-        python-opencv \
     && make deps install \
     && apt-get -y remove --auto-remove build-essential
