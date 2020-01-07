@@ -19,7 +19,7 @@ If you want to use GPU support, set the environment variable `TENSORFLOW_GPU`,
 otherwise leave it unset. Then:
 
 ```bash
-make dep
+make deps
 ```
 
 to install dependencies and
