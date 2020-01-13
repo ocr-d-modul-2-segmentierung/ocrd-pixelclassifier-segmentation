@@ -32,7 +32,7 @@ FALLBACK_IMAGE_GRP = 'OCR-D-SEG-BLOCK'
 
 def polygon_from_segment(segment: Segment):
     from ocrd_utils import polygon_from_bbox
-    return polygon_from_bbox(segment.x_start, segment.y_start, segment.x_end, segment.y_end)
+    return polygon_from_bbox(segment.y_start, segment.x_start, segment.y_end, segment.x_end)
 
 
 class PixelClassifierSegmentation(Processor):
@@ -122,11 +122,15 @@ class PixelClassifierSegmentation(Processor):
         from ocr4all_pixel_classifier.scripts.find_segments import predict_masks, \
             DEFAULT_IMAGE_MAP, DEFAULT_REVERSE_IMAGE_MAP
 
+        from ocr4all_pixel_classifier.lib.dataset import prepare_images
+        image, binary = prepare_images(page_image, page_image, target_line_height=8, line_height_px=xheight)
+
         image_map = DEFAULT_IMAGE_MAP
         rev_image_map = DEFAULT_REVERSE_IMAGE_MAP
 
         masks = predict_masks(None,
-                              page_image,
+                              image,
+                              binary,
                               image_map,
                               xheight,
                               model,
