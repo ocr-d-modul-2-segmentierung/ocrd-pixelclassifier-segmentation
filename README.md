@@ -15,8 +15,7 @@ a binary image. This result is then segmented per class using XY cuts.
 
 ## Installation
 
-If you want to use GPU support, set the environment variable `TENSORFLOW_GPU`,
-otherwise leave it unset. Then:
+Run
 
 ```bash
 make deps
@@ -32,6 +31,10 @@ to install the package.
 
 Both are python packages installed via pip, so you may want to activate
 a virtalenv before installing.
+
+For GPU support, follow the [CUDA](https://developer.nvidia.com/cuda-downloads)
+and [CUDNN](https://developer.nvidia.com/cudnn) manuals. The Tensorflow
+2 package used here will detect available support automatically.
 
 ## Usage
 
@@ -60,3 +63,4 @@ There is a simple CLI test, that will run the tool on a single image from the as
 ## Training
 
 To train models for the pixel classifier, see [its README](https://github.com/ocr-d-modul-2-segmentierung/page-segmentation/blob/master/README.md)
+and the [examples](https://github.com/ocr-d-modul-2-segmentierung/page-segmentation/blob/master/examples/)
