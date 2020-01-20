@@ -5,7 +5,7 @@
     "ocrd-pixelclassifier-segmentation": {
       "executable": "ocrd-pc-segmentation",
       "categories": ["Layout analysis"],
-      "description": "Segment page into regions with tesseract",
+      "description": "Segment page into regions using a pixel classifier based on a Fully Convolutional Network (FCN)",
       "input_file_grp": [
         "OCR-D-IMG-BIN"
       ],
