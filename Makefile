@@ -1,32 +1,43 @@
-SHELL = /bin/bash
+SHELL = bash
 PYTHON = python
 PIP = pip
 
 DOCKER_TAG = 'ls6uniwue/ocrd_pixelclassifier_segmentation'
 
-ifndef TENSORFLOW_GPU
-	TENSORFLOW_VARIANT = tf_cpu
+# If set to 1, uses tensorflow-gpu. Requires working cuDNN setup. Default: $(TENSORFLOW_GPU)
+TENSORFLOW_GPU ?= 0
+
+ifeq ($(TENSORFLOW_GPU),1)
+TENSORFLOW_VARIANT = tf_gpu
 else
-	TENSORFLOW_VARIANT = tf_gpu
+TENSORFLOW_VARIANT = tf_cpu
 endif
+
+# BEGIN-EVAL makefile-parser --make-help Makefile
 
 help:
 	@echo ""
 	@echo "  Targets"
 	@echo ""
-	@echo "    deps         install dependencies"
-	@echo "    install      install package"
+	@echo "    deps          Install python deps via pip"
+	@echo "    deps-test     Install testing python deps via pip"
+	@echo "    install       Install"
+	@echo "    docker        Build docker image"
+	@echo "    test-cli      Test the command line tools"
+	@echo "    repo/assets   Clone OCR-D/assets to ./repo/assets"
+	@echo "    test/assets   Setup test assets"
+	@echo "    assets-clean  Remove symlinks in test/assets"
 	@echo ""
-	@echo "  Environment variables"
+	@echo "  Variables"
 	@echo ""
-	@echo "    TENSORFLOW_GPU   if set, uses tensorflow-gpu"
-	@echo "                     requires working cuDNN setup"
+	@echo "    TENSORFLOW_GPU  If set to 1, uses tensorflow-gpu. Requires working cuDNN setup. Default: $(TENSORFLOW_GPU)"
 
+# END-EVAL
 
 # Install python deps via pip
 deps:
 	$(PIP) install -r requirements.txt
-	$(PIP) install ocr4all-pixel-classifier[$(TENSORFLOW_VARIANT)]
+	$(PIP) install 'ocr4all-pixel-classifier[$(TENSORFLOW_VARIANT)]'
 
 # Install testing python deps via pip
 deps-test:
@@ -40,12 +51,11 @@ install: deps
 docker:
 	docker build -t $(DOCKER_TAG) .
 
-#TODO tests
-
 .PHONY: install deps
 
 
-test: test/assets
+# TODO tests
+# test: test/assets
 
 # Test the command line tools
 test-cli: test/assets install
