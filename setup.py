@@ -14,10 +14,6 @@ setup(
     url='https://github.com/ocr-d-modul-2-segmentierung/ocrd-pixelclassifier-segmentation',
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=open("requirements.txt").read().split(),
-    extras_require={
-        'tf_cpu': ['ocr4all_pixel_classifier[tf_cpu]>=0.2.0'],
-        'tf_gpu': ['ocr4all_pixel_classifier[tf_gpu]>=0.2.0'],
-    },
     package_data={
         '': ['*.json', '*.yml', '*.yaml'],
     },
