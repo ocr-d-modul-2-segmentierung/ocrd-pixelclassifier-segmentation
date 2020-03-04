@@ -15,8 +15,8 @@ a binary image. This result is then segmented per class using XY cuts.
 
 ## Installation
 
-If you want to use GPU support, set the environment variable `TENSORFLOW_GPU`,
-otherwise leave it unset. Then:
+If you want to use GPU support, set the environment variable `TENSORFLOW_GPU`
+to a nonempty value, otherwise leave it unset. Then:
 
 ```bash
 make deps
