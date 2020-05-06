@@ -1,4 +1,4 @@
-# page-segmentation module for OCRd
+# page-segmentation module for OCR-d
 
 ## Introduction
 
@@ -45,7 +45,7 @@ The following parameters are recognized in the JSON parameter file:
 
 - `overwrite_regions`: remove previously existing text regions
 - `xheight`: height of character "x" in pixels used during training.
-- `model`: pixel-classifier model path
+- `model`: pixel-classifier model path. The special values `__DEFAULT__` and `__LEGACY__` load the bundled default model or previous default model respectively.
 - `gpu_allow_growth`: required for GPU use with some graphic cards
   (set to true, if you get CUDNN_INTERNAL_ERROR)
 - `resize_height`: scale down pixelclassifier output to this height before postprocessing. Independent of training / used model.

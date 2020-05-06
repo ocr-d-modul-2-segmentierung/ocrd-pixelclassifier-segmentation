@@ -56,6 +56,9 @@ class PixelClassifierSegmentation(Processor):
         if model == '__DEFAULT__':
             from ocrd_pc_segmentation import DEFAULT_SEGMENTATION_MODEL_PATH
             model = DEFAULT_SEGMENTATION_MODEL_PATH
+        elif model == '__LEGACY__':
+            from ocrd_pc_segmentation import LEGACY_SEGMENTATION_MODEL_PATH
+            model = LEGACY_SEGMENTATION_MODEL_PATH
 
         page_grp = self.output_file_grp
 
