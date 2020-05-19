@@ -1,3 +1,4 @@
 include ocrd_pc_segmentation/dta2-model/model.h5
+include ocrd_pc_segmentation/lgt-model/model.h5
 include README.md
 
