@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import json
 import os.path
+from pkg_resources import resource_string
 
 import numpy as np
 from ocr4all_pixel_classifier.lib.pc_segmentation import Segment
@@ -17,11 +18,11 @@ from ocrd_models.ocrd_page import (
     to_xml,
 )
 from ocrd_utils import (
+    assert_file_grp_cardinality,
     getLogger,
-    concat_padded,
+    make_file_id,
     MIMETYPE_PAGE,
 )
-from pkg_resources import resource_string
 
 OCRD_TOOL = json.loads(resource_string(__name__, 'ocrd-tool.json').decode('utf8'))
 
@@ -47,6 +48,9 @@ class PixelClassifierSegmentation(Processor):
 
         Produces a PageXML file as output.
         """
+        assert_file_grp_cardinality(self.input_file_grp, 1)
+        assert_file_grp_cardinality(self.output_file_grp, 1)
+
         overwrite_regions = self.parameter['overwrite_regions']
         xheight = self.parameter['xheight']
         gpu_allow_growth = self.parameter['gpu_allow_growth']
@@ -103,11 +107,7 @@ class PixelClassifierSegmentation(Processor):
             self._process_page(page, np.asarray(page_image), page_coords, xheight, model,
                                gpu_allow_growth, resize_height)
 
-            # Use input_file's basename for the new file -
-            # this way the files retain the same basenames:
-            file_id = input_file.ID.replace(self.input_file_grp, page_grp)
-            if file_id == input_file.ID:
-                file_id = concat_padded(page_grp, n)
+            file_id = make_file_id(input_file, self.output_file_grp)
             self.workspace.add_file(
                 ID=file_id,
                 file_grp=page_grp,
