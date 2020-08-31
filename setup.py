@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ocrd_pc_segmentation',
-    version='0.1.5',
+    version='0.2.0',
     description='pixel-classifier based page segmentation',
     long_description=codecs.open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
@@ -15,8 +15,8 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=open("requirements.txt").read().split(),
     extras_require={
-        'tf_cpu': ['ocr4all_pixel_classifier[tf_cpu]~=0.2.0'],
-        'tf_gpu': ['ocr4all_pixel_classifier[tf_gpu]~=0.2.0'],
+        'tf_cpu': ['ocr4all_pixel_classifier[tf_cpu]~=0.4.0'],
+        'tf_gpu': ['ocr4all_pixel_classifier[tf_gpu]~=0.4.0'],
     },
     package_data={
         '': ['*.json', '*.yml', '*.yaml'],

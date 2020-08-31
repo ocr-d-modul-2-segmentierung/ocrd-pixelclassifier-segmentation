@@ -5,7 +5,7 @@ import os.path
 from pkg_resources import resource_string
 
 import numpy as np
-from ocr4all_pixel_classifier.lib.pc_segmentation import Segment
+from ocr4all_pixel_classifier.lib.pc_segmentation import RectSegment
 from ocrd import Processor
 from ocrd_modelfactory import page_from_file
 from ocrd_models.ocrd_page import (
@@ -31,7 +31,7 @@ LOG = getLogger('processor.PixelClassifierSegmentation')
 FALLBACK_IMAGE_GRP = 'OCR-D-SEG-BLOCK'
 
 
-def polygon_from_segment(segment: Segment):
+def polygon_from_segment(segment: RectSegment):
     from ocrd_utils import polygon_from_bbox
     return polygon_from_bbox(segment.y_start, segment.x_start, segment.y_end, segment.x_end)
 
@@ -122,7 +122,9 @@ class PixelClassifierSegmentation(Processor):
                       resize_height):
 
         from ocr4all_pixel_classifier.lib.pc_segmentation import find_segments
-        from ocr4all_pixel_classifier.scripts.find_segments import predict_masks, \
+        from ocr4all_pixel_classifier.lib.predictor import PredictSettings, Predictor
+        from ocr4all_pixel_classifier.lib.dataset import SingleData
+        from ocr4all_pixel_classifier.lib.image_map import \
             DEFAULT_IMAGE_MAP, DEFAULT_REVERSE_IMAGE_MAP
 
         from ocr4all_pixel_classifier.lib.dataset import prepare_images
@@ -131,15 +133,18 @@ class PixelClassifierSegmentation(Processor):
         image_map = DEFAULT_IMAGE_MAP
         rev_image_map = DEFAULT_REVERSE_IMAGE_MAP
 
-        masks = predict_masks(None,
-                              image,
-                              binary,
-                              image_map,
-                              xheight,
-                              model,
-                              post_processors=None,
-                              gpu_allow_growth=gpu_allow_growth,
-                              )
+        data = SingleData(binary=binary, image=image, original_shape=binary.shape, line_height_px=xheight)
+
+        settings = PredictSettings(
+            network=os.path.abspath(model),
+            high_res_output=True,
+            color_map=image_map,
+            n_classes=len(image_map),
+            gpu_allow_growth=gpu_allow_growth,
+        )
+        predictor = Predictor(settings)
+
+        masks = predictor.predict_masks(data)
 
         orig_height, orig_width = page_image.shape[0:2]
         mask_image = masks.inverted_overlay
@@ -147,7 +152,7 @@ class PixelClassifierSegmentation(Processor):
         segments_text, segments_image = find_segments(orig_height, mask_image, xheight,
                                                       resize_height, rev_image_map)
 
-        def add_region(region: Segment, index: int, region_type: str):
+        def add_region(region: RectSegment, index: int, region_type: str):
             from ocrd_utils import coordinates_for_segment, points_from_polygon
             polygon = polygon_from_segment(region)
             polygon = coordinates_for_segment(polygon, page_image, page_coords)
