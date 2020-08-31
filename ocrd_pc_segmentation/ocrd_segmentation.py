@@ -104,7 +104,12 @@ class PixelClassifierSegmentation(Processor):
 
             page_image, page_coords, _ = self.workspace.image_from_page(page, page_id)
 
-            self._process_page(page, np.asarray(page_image), page_coords, xheight, model,
+            # ensure the image doesn't have an alpha channel
+            if page_image.mode[-1] == "A":
+                page_image = page_image.convert(mode=page_image.mode[0:-1])
+            page_binary = page_image.convert(mode='1')
+
+            self._process_page(page, np.asarray(page_image), np.asarray(page_binary), page_coords, xheight, model,
                                gpu_allow_growth, resize_height)
 
             file_id = make_file_id(input_file, self.output_file_grp)
@@ -118,7 +123,7 @@ class PixelClassifierSegmentation(Processor):
                 content=to_xml(pcgts))
 
     @staticmethod
-    def _process_page(page, page_image, page_coords, xheight, model, gpu_allow_growth,
+    def _process_page(page, page_image, page_binary, page_coords, xheight, model, gpu_allow_growth,
                       resize_height):
 
         from ocr4all_pixel_classifier.lib.pc_segmentation import find_segments
@@ -128,7 +133,7 @@ class PixelClassifierSegmentation(Processor):
             DEFAULT_IMAGE_MAP, DEFAULT_REVERSE_IMAGE_MAP
 
         from ocr4all_pixel_classifier.lib.dataset import prepare_images
-        image, binary = prepare_images(page_image, page_image, target_line_height=8, line_height_px=xheight)
+        image, binary = prepare_images(page_image, page_binary, target_line_height=8, line_height_px=xheight)
 
         image_map = DEFAULT_IMAGE_MAP
         rev_image_map = DEFAULT_REVERSE_IMAGE_MAP
