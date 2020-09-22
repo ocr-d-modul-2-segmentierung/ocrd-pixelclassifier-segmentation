@@ -35,7 +35,7 @@ help:
 # END-EVAL
 
 # Install python deps via pip
-deps:
+deps: requirements.txt
 	$(PIP) install -r requirements.txt
 	$(PIP) install 'ocr4all-pixel-classifier[$(TENSORFLOW_VARIANT)]'
 
@@ -83,3 +83,11 @@ test/assets: repo/assets
 # Remove symlinks in test/assets
 assets-clean:
 	rm -rf test/assets
+
+
+requirements.txt: pip-tools
+	pip-compile
+
+.PHONY: pip-tools
+pip-tools:
+	$(PIP) install pip-tools

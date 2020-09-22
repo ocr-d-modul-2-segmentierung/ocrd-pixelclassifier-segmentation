@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 import json
 import os.path
+
+from ocr4all.colors import ColorMap
 from pkg_resources import resource_string
 
 import numpy as np
@@ -129,22 +131,22 @@ class PixelClassifierSegmentation(Processor):
         from ocr4all_pixel_classifier.lib.pc_segmentation import find_segments
         from ocr4all_pixel_classifier.lib.predictor import PredictSettings, Predictor
         from ocr4all_pixel_classifier.lib.dataset import SingleData
-        from ocr4all_pixel_classifier.lib.image_map import \
-            DEFAULT_IMAGE_MAP, DEFAULT_REVERSE_IMAGE_MAP
+        from ocr4all.colors import \
+            DEFAULT_COLOR_MAPPING, DEFAULT_LABELS_BY_NAME
 
         from ocr4all_pixel_classifier.lib.dataset import prepare_images
         image, binary = prepare_images(page_image, page_binary, target_line_height=8, line_height_px=xheight)
 
-        image_map = DEFAULT_IMAGE_MAP
-        rev_image_map = DEFAULT_REVERSE_IMAGE_MAP
+        color_map = ColorMap(DEFAULT_COLOR_MAPPING)
+        labels_by_name = DEFAULT_LABELS_BY_NAME
 
         data = SingleData(binary=binary, image=image, original_shape=binary.shape, line_height_px=xheight)
 
         settings = PredictSettings(
             network=os.path.abspath(model),
             high_res_output=True,
-            color_map=image_map,
-            n_classes=len(image_map),
+            color_map=color_map,
+            n_classes=len(DEFAULT_COLOR_MAPPING),
             gpu_allow_growth=gpu_allow_growth,
         )
         predictor = Predictor(settings)
@@ -155,7 +157,7 @@ class PixelClassifierSegmentation(Processor):
         mask_image = masks.inverted_overlay
 
         segments_text, segments_image = find_segments(orig_height, mask_image, xheight,
-                                                      resize_height, rev_image_map)
+                                                      resize_height, labels_by_name)
 
         def add_region(region: RectSegment, index: int, region_type: str):
             from ocrd_utils import coordinates_for_segment, points_from_polygon

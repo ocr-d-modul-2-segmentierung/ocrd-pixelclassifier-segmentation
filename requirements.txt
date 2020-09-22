@@ -1,3 +1,0 @@
-ocrd>=2.0.0a1
-ocr4all-pixel-classifier~=0.4
-numpy
