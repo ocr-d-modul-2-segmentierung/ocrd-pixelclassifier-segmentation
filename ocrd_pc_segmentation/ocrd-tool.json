@@ -1,6 +1,6 @@
 {
   "git_url": "https://github.com/ocr-d-modul-2-segmentierung/segmentation-runner",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "tools": {
     "ocrd-pixelclassifier-segmentation": {
       "executable": "ocrd-pc-segmentation",
