@@ -29,7 +29,6 @@ from ocrd_utils import (
 OCRD_TOOL = json.loads(resource_string(__name__, 'ocrd-tool.json').decode('utf8'))
 
 TOOL = 'ocrd-pixelclassifier-segmentation'
-LOG = getLogger('processor.PixelClassifierSegmentation')
 FALLBACK_IMAGE_GRP = 'OCR-D-SEG-BLOCK'
 
 
@@ -50,6 +49,7 @@ class PixelClassifierSegmentation(Processor):
 
         Produces a PageXML file as output.
         """
+        LOG = getLogger('processor.PixelClassifierSegmentation')
         assert_file_grp_cardinality(self.input_file_grp, 1)
         assert_file_grp_cardinality(self.output_file_grp, 1)
 
