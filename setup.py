@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ocrd_pc_segmentation',
-    version='0.2.2',
+    version='0.2.3',
     description='pixel-classifier based page segmentation',
     long_description=codecs.open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
