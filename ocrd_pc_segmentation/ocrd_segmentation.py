@@ -131,14 +131,12 @@ class PixelClassifierSegmentation(Processor):
         from ocr4all_pixel_classifier.lib.pc_segmentation import find_segments
         from ocr4all_pixel_classifier.lib.predictor import PredictSettings, Predictor
         from ocr4all_pixel_classifier.lib.dataset import SingleData
-        from ocr4all.colors import \
-            DEFAULT_COLOR_MAPPING, DEFAULT_LABELS_BY_NAME
+        from ocr4all.colors import ColorMap, DEFAULT_COLOR_MAPPING
 
         from ocr4all_pixel_classifier.lib.dataset import prepare_images
         image, binary = prepare_images(page_image, page_binary, target_line_height=8, line_height_px=xheight)
 
         color_map = ColorMap(DEFAULT_COLOR_MAPPING)
-        labels_by_name = DEFAULT_LABELS_BY_NAME
 
         data = SingleData(binary=binary, image=image, original_shape=binary.shape, line_height_px=xheight)
 
@@ -157,7 +155,7 @@ class PixelClassifierSegmentation(Processor):
         mask_image = masks.inverted_overlay
 
         segments_text, segments_image = find_segments(orig_height, mask_image, xheight,
-                                                      resize_height, labels_by_name)
+                                                      resize_height, color_map)
 
         def add_region(region: RectSegment, index: int, region_type: str):
             from ocrd_utils import coordinates_for_segment, points_from_polygon
