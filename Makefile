@@ -86,7 +86,7 @@ assets-clean:
 
 .PHONY: requirements.txt
 requirements.txt: pip-tools
-	pip-compile -r
+	pip-compile --upgrade
 
 .PHONY: pip-tools
 pip-tools:
