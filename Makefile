@@ -84,9 +84,9 @@ test/assets: repo/assets
 assets-clean:
 	rm -rf test/assets
 
-
+.PHONY: requirements.txt
 requirements.txt: pip-tools
-	pip-compile
+	pip-compile -r
 
 .PHONY: pip-tools
 pip-tools:
