@@ -90,4 +90,4 @@ requirements.txt: pip-tools
 
 .PHONY: pip-tools
 pip-tools:
-	$(PIP) install pip-tools
+	$(PIP) install -U pip-tools
