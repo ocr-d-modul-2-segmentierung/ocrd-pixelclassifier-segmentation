@@ -4,15 +4,6 @@ PIP = pip
 
 DOCKER_TAG = 'ls6uniwue/ocrd_pixelclassifier_segmentation'
 
-# If set to 1, uses tensorflow-gpu. Requires working cuDNN setup. Default: $(TENSORFLOW_GPU)
-TENSORFLOW_GPU ?= 0
-
-ifeq ($(TENSORFLOW_GPU),1)
-TENSORFLOW_VARIANT = tf_gpu
-else
-TENSORFLOW_VARIANT = tf_cpu
-endif
-
 # BEGIN-EVAL makefile-parser --make-help Makefile
 
 help:
@@ -37,7 +28,7 @@ help:
 # Install python deps via pip
 deps: requirements.txt
 	$(PIP) install -r requirements.txt
-	$(PIP) install 'ocr4all-pixel-classifier[$(TENSORFLOW_VARIANT)]'
+	$(PIP) install 'ocr4all-pixel-classifier'
 
 # Install testing python deps via pip
 deps-test:

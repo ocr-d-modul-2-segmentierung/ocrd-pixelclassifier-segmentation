@@ -15,9 +15,6 @@ a binary image. This result is then segmented per class using XY cuts.
 
 ## Installation
 
-If you want to use GPU support, set the environment variable `TENSORFLOW_GPU`
-to a nonempty value, otherwise leave it unset. Then:
-
 ```bash
 make deps
 ```
@@ -30,8 +27,11 @@ make install
 
 to install the package.
 
-Both are python packages installed via pip, so you may want to activate
-a virtalenv before installing.
+Both install python packages via pip, so you may want to activate a virtalenv
+before installing.
+
+If you share a virtualenv with a package requiring tensorflow < 2.1 and want to
+use a GPU, replace the `tensorflow` package with `tensorflow-gpu` manually.
 
 ## Usage
 
