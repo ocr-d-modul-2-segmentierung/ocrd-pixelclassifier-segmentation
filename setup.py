@@ -13,11 +13,7 @@ setup(
     author_email='alexander.gehrke@uni-wuerzburg.de, christian.reul@uni-wuerzburg.de, christoph.wick@uni-wuerzburg.de',
     url='https://github.com/ocr-d-modul-2-segmentierung/ocrd-pixelclassifier-segmentation',
     packages=find_packages(exclude=('tests', 'docs')),
-    install_requires=open("requirements.in").read().split(),
-    extras_require={
-        'tf_cpu': ['ocr4all_pixel_classifier[tf_cpu]~=0.4.0'],
-        'tf_gpu': ['ocr4all_pixel_classifier[tf_gpu]~=0.4.0'],
-    },
+    install_requires=open("requirements.in").read().split("\n"),
     package_data={
         '': ['*.json', '*.yml', '*.yaml'],
     },
