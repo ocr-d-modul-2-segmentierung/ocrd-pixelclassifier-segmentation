@@ -28,7 +28,7 @@ from ocrd_utils import (
 
 OCRD_TOOL = json.loads(resource_string(__name__, 'ocrd-tool.json').decode('utf8'))
 
-TOOL = 'ocrd-pixelclassifier-segmentation'
+TOOL = 'ocrd-pc-segmentation'
 FALLBACK_IMAGE_GRP = 'OCR-D-SEG-BLOCK'
 
 
