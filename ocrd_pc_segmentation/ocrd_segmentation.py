@@ -76,19 +76,24 @@ class PixelClassifierSegmentation(Processor):
                     page.set_TextRegion([])
                 else:
                     LOG.warning('keeping existing TextRegions')
-
-            page.set_AdvertRegion([])
-            page.set_ChartRegion([])
-            page.set_ChemRegion([])
-            page.set_GraphicRegion([])
-            page.set_ImageRegion([])
-            page.set_LineDrawingRegion([])
-            page.set_MathsRegion([])
-            page.set_MusicRegion([])
-            page.set_NoiseRegion([])
-            page.set_SeparatorRegion([])
-            page.set_TableRegion([])
-            page.set_UnknownRegion([])
+            if page.get_ImageRegion():
+                if overwrite_regions:
+                    LOG.info('removing existing ImageRegions')
+                    page.set_ImageRegion([])
+                else:
+                    LOG.warning('keeping existing ImageRegions')
+            if overwrite_regions:
+                page.set_AdvertRegion([])
+                page.set_ChartRegion([])
+                page.set_ChemRegion([])
+                page.set_GraphicRegion([])
+                page.set_LineDrawingRegion([])
+                page.set_MathsRegion([])
+                page.set_MusicRegion([])
+                page.set_NoiseRegion([])
+                page.set_SeparatorRegion([])
+                page.set_TableRegion([])
+                page.set_UnknownRegion([])
 
             page_image, page_coords, _ = self.workspace.image_from_page(page, page_id)
 
