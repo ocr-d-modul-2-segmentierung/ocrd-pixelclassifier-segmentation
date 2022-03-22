@@ -27,9 +27,7 @@ from ocrd_utils import (
 )
 
 OCRD_TOOL = json.loads(resource_string(__name__, 'ocrd-tool.json').decode('utf8'))
-
 TOOL = 'ocrd-pc-segmentation'
-FALLBACK_IMAGE_GRP = 'OCR-D-SEG-BLOCK'
 
 
 def polygon_from_segment(segment: RectSegment):
@@ -42,7 +40,7 @@ class PixelClassifierSegmentation(Processor):
     def __init__(self, *args, **kwargs):
         kwargs['ocrd_tool'] = OCRD_TOOL['tools'][TOOL]
         kwargs['version'] = OCRD_TOOL['version']
-        super(PixelClassifierSegmentation, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def process(self):
         """Performs segmentation on the input binary image
@@ -66,23 +64,11 @@ class PixelClassifierSegmentation(Processor):
             from ocrd_pc_segmentation import LEGACY_SEGMENTATION_MODEL_PATH
             model = LEGACY_SEGMENTATION_MODEL_PATH
 
-        page_grp = self.output_file_grp
-
         for n, input_file in enumerate(self.input_files):
             page_id = input_file.pageId or input_file.ID
             LOG.info("INPUT FILE %i / %s", n, page_id)
             pcgts = page_from_file(self.workspace.download_file(input_file))
-            metadata = pcgts.get_Metadata()  # ensured by from_file()
-            metadata.add_MetadataItem(
-                MetadataItemType(type_="processingStep",
-                                 name=self.ocrd_tool['steps'][0],
-                                 value=TOOL,
-                                 Labels=[LabelsType(
-                                     externalModel="ocrd-tool",
-                                     externalId="parameters",
-                                     Label=[LabelType(type_=name,
-                                                      value=self.parameter[name])
-                                            for name in self.parameter.keys()])]))
+            self.add_metadata(pcgts)
             page = pcgts.get_Page()
             if page.get_TextRegion():
                 if overwrite_regions:
@@ -117,10 +103,10 @@ class PixelClassifierSegmentation(Processor):
             file_id = make_file_id(input_file, self.output_file_grp)
             self.workspace.add_file(
                 ID=file_id,
-                file_grp=page_grp,
+                file_grp=self.output_file_grp,
                 pageId=input_file.pageId,
                 mimetype=MIMETYPE_PAGE,
-                local_filename=os.path.join(page_grp,
+                local_filename=os.path.join(self.output_file_grp,
                                             file_id + '.xml'),
                 content=to_xml(pcgts))
 
