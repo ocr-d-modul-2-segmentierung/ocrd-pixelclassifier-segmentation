@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import json
 import os.path
 
-from ocr4all.colors import ColorMap
 from pkg_resources import resource_string
 
 import numpy as np
@@ -41,6 +40,32 @@ class PixelClassifierSegmentation(Processor):
         kwargs['ocrd_tool'] = OCRD_TOOL['tools'][TOOL]
         kwargs['version'] = OCRD_TOOL['version']
         super().__init__(*args, **kwargs)
+        if hasattr(self, 'output_file_grp') and hasattr(self, 'parameter'):
+            # processing context
+            self.setup()
+
+    def setup(self):
+        LOG = getLogger('processor.PixelClassifierSegmentation')
+        gpu_allow_growth = self.parameter['gpu_allow_growth']
+        model = self.parameter['model']
+        if model == '__DEFAULT__':
+            from . import DEFAULT_SEGMENTATION_MODEL_PATH
+            model = DEFAULT_SEGMENTATION_MODEL_PATH
+        elif model == '__LEGACY__':
+            from . import LEGACY_SEGMENTATION_MODEL_PATH
+            model = LEGACY_SEGMENTATION_MODEL_PATH
+
+        from ocr4all_pixel_classifier.lib.predictor import PredictSettings, Predictor
+        from ocr4all.colors import ColorMap, DEFAULT_COLOR_MAPPING
+        self.color_map = ColorMap(DEFAULT_COLOR_MAPPING)
+        settings = PredictSettings(
+            network=os.path.abspath(model),
+            high_res_output=True,
+            color_map=self.color_map,
+            n_classes=len(DEFAULT_COLOR_MAPPING),
+            gpu_allow_growth=gpu_allow_growth,
+        )
+        self.predictor = Predictor(settings)
 
     def process(self):
         """Performs segmentation on the input binary image
@@ -53,16 +78,7 @@ class PixelClassifierSegmentation(Processor):
 
         overwrite_regions = self.parameter['overwrite_regions']
         xheight = self.parameter['xheight']
-        gpu_allow_growth = self.parameter['gpu_allow_growth']
         resize_height = self.parameter['resize_height']
-
-        model = self.parameter['model']
-        if model == '__DEFAULT__':
-            from ocrd_pc_segmentation import DEFAULT_SEGMENTATION_MODEL_PATH
-            model = DEFAULT_SEGMENTATION_MODEL_PATH
-        elif model == '__LEGACY__':
-            from ocrd_pc_segmentation import LEGACY_SEGMENTATION_MODEL_PATH
-            model = LEGACY_SEGMENTATION_MODEL_PATH
 
         for n, input_file in enumerate(self.input_files):
             page_id = input_file.pageId or input_file.ID
@@ -102,8 +118,7 @@ class PixelClassifierSegmentation(Processor):
                 page_image = page_image.convert(mode=page_image.mode[0:-1])
             page_binary = page_image.convert(mode='1')
 
-            self._process_page(page, np.asarray(page_image), np.asarray(page_binary), page_coords, xheight, model,
-                               gpu_allow_growth, resize_height)
+            self._process_page(page, np.asarray(page_image), np.asarray(page_binary), page_coords, xheight, resize_height)
 
             file_id = make_file_id(input_file, self.output_file_grp)
             self.workspace.add_file(
@@ -115,38 +130,23 @@ class PixelClassifierSegmentation(Processor):
                                             file_id + '.xml'),
                 content=to_xml(pcgts))
 
-    @staticmethod
-    def _process_page(page, page_image, page_binary, page_coords, xheight, model, gpu_allow_growth,
-                      resize_height):
+    def _process_page(self, page, page_image, page_binary, page_coords, xheight, resize_height):
 
         from ocr4all_pixel_classifier.lib.pc_segmentation import find_segments
-        from ocr4all_pixel_classifier.lib.predictor import PredictSettings, Predictor
         from ocr4all_pixel_classifier.lib.dataset import SingleData
-        from ocr4all.colors import ColorMap, DEFAULT_COLOR_MAPPING
 
         from ocr4all_pixel_classifier.lib.dataset import prepare_images
         image, binary = prepare_images(page_image, page_binary, target_line_height=8, line_height_px=xheight)
 
-        color_map = ColorMap(DEFAULT_COLOR_MAPPING)
-
         data = SingleData(binary=binary, image=image, original_shape=binary.shape, line_height_px=xheight)
 
-        settings = PredictSettings(
-            network=os.path.abspath(model),
-            high_res_output=True,
-            color_map=color_map,
-            n_classes=len(DEFAULT_COLOR_MAPPING),
-            gpu_allow_growth=gpu_allow_growth,
-        )
-        predictor = Predictor(settings)
-
-        masks = predictor.predict_masks(data)
+        masks = self.predictor.predict_masks(data)
 
         orig_height, orig_width = page_image.shape[0:2]
         mask_image = masks.inverted_overlay
 
         segments_text, segments_image = find_segments(orig_height, mask_image, xheight,
-                                                      resize_height, color_map)
+                                                      resize_height, self.color_map)
 
         def add_region(region: RectSegment, index: int, region_type: str):
             from ocrd_utils import coordinates_for_segment, points_from_polygon
