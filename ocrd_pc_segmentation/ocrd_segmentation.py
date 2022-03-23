@@ -21,6 +21,10 @@ from ocrd_models.ocrd_page import (
 from ocrd_utils import (
     assert_file_grp_cardinality,
     getLogger,
+    polygon_from_bbox,
+    bbox_from_polygon,
+    points_from_polygon,
+    coordinates_for_segment,
     make_file_id,
     MIMETYPE_PAGE,
 )
@@ -30,7 +34,6 @@ TOOL = 'ocrd-pc-segmentation'
 
 
 def polygon_from_segment(segment: RectSegment):
-    from ocrd_utils import polygon_from_bbox
     return polygon_from_bbox(segment.y_start, segment.x_start, segment.y_end, segment.x_end)
 
 
@@ -111,14 +114,55 @@ class PixelClassifierSegmentation(Processor):
                 page.set_TableRegion([])
                 page.set_UnknownRegion([])
 
-            page_image, page_coords, _ = self.workspace.image_from_page(page, page_id)
+            page_image_raw, page_coords_raw, _ = self.workspace.image_from_page(
+                page, page_id,
+                feature_filter='binarized',
+                transparency=False)
+            page_image_bin, page_coords_bin, _ = self.workspace.image_from_page(
+                page, page_id,
+                feature_selector='binarized')
+            # workaround for OCR-D/core#687:
+            assert np.allclose(page_coords_raw['transform'], page_coords_bin['transform'])
+            if 0 < abs(page_image_raw.width - page_image_bin.width) <= 2:
+                diff = page_image_raw.width - page_image_bin.width
+                if diff > 0:
+                    page_image_raw = crop_image(
+                        page_image_raw,
+                        (int(np.floor(diff / 2)), 0,
+                         page_image_raw.width - int(np.ceil(diff / 2)),
+                         page_image_raw.height))
+                else:
+                    page_image_bin = crop_image(
+                        page_image_bin,
+                        (int(np.floor(-diff / 2)), 0,
+                         page_image_bin.width - int(np.ceil(-diff / 2)),
+                         page_image_bin.height))
+            if 0 < abs(page_image_raw.height - page_image_bin.height) <= 2:
+                diff = page_image_raw.height - page_image_bin.height
+                if diff > 0:
+                    page_image_raw = crop_image(
+                        page_image_raw,
+                        (0, int(np.floor(diff / 2)),
+                         page_image_raw.width,
+                         page_image_raw.height - int(np.ceil(diff / 2))))
+                else:
+                    page_image_bin = crop_image(
+                        page_image_bin,
+                        (0, int(np.floor(-diff / 2)),
+                         page_image_bin.width,
+                         page_image_bin.height - int(np.ceil(-diff / 2))))
+            # ensure the image doesn't have an alpha channel, and is grayscale
+            page_image_raw = page_image_raw.convert(mode='L')
 
-            # ensure the image doesn't have an alpha channel
-            if page_image.mode[-1] == "A":
-                page_image = page_image.convert(mode=page_image.mode[0:-1])
-            page_binary = page_image.convert(mode='1')
-
-            self._process_page(page, np.asarray(page_image), np.asarray(page_binary), page_coords, xheight, resize_height)
+            self._process_page(page,
+                               # FIXME: strangely, the default model does not detect ANYTHING
+                               #        with actual grayscale images; you MUST pass binary
+                               #        for the legacy model, you do get predictions, but
+                               #        they are useless
+                               #np.asarray(page_image_raw),
+                               np.asarray(page_image_bin, np.uint8) * 255,
+                               np.asarray(page_image_bin),
+                               page_coords_raw, xheight, resize_height)
 
             file_id = make_file_id(input_file, self.output_file_grp)
             self.workspace.add_file(
@@ -131,6 +175,7 @@ class PixelClassifierSegmentation(Processor):
                 content=to_xml(pcgts))
 
     def _process_page(self, page, page_image, page_binary, page_coords, xheight, resize_height):
+        LOG = getLogger('processor.PixelClassifierSegmentation')
 
         from ocr4all_pixel_classifier.lib.pc_segmentation import find_segments
         from ocr4all_pixel_classifier.lib.dataset import SingleData
@@ -149,13 +194,14 @@ class PixelClassifierSegmentation(Processor):
                                                       resize_height, self.color_map)
 
         def add_region(region: RectSegment, index: int, region_type: str):
-            from ocrd_utils import coordinates_for_segment, points_from_polygon
             polygon = polygon_from_segment(region)
             polygon = coordinates_for_segment(polygon, page_image, page_coords)
             points = points_from_polygon(polygon)
+            bbox = bbox_from_polygon(polygon)
 
             indexed_id = "region%04d" % index
             coords = CoordsType(points=points)
+            LOG.debug("Detected %s region at %s", region_type, str(bbox))
             if region_type == "text":
                 page.add_TextRegion(TextRegionType(id=indexed_id, Coords=coords))
             elif region_type == "image":
