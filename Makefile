@@ -49,11 +49,11 @@ docker:
 # test: test/assets
 
 # Test the command line tools
-test-cli: test/assets install
+test-cli: test/assets # install
 	rm -rfv test-workspace
 	cp -rv test/assets/kant_aufklaerung_1784-binarized test-workspace
-	cd test-workspace/data && \
-		ocrd-pc-segmentation -l DEBUG -m mets.xml -I OCR-D-IMG-BIN -O OCR-D-SEG-BLOCK
+	ocrd-pc-segmentation -m test-workspace/data/mets.xml -I OCR-D-IMG-BIN -O OCR-D-SEG-BLOCK
+	fgrep -c -e TextRegion -e ImageRegion test-workspace/data/OCR-D-SEG-BLOCK/*.xml
 
 #
 # Assets
